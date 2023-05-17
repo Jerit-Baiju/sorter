@@ -17,14 +17,15 @@ for filename in os.listdir(source_dir):
     timestamp1 = ('IMG_', 'VID_', 'MVIMG_', 'SAVE_')
     timestamp2 = ('IMG-', 'AUD-', 'PTT-', 'VID-', 'null-')
     timestamp3 = ('2020-', '2021-', '2022-','2023-')
-    timestamp4 = ('Screenshot_',)
-    timestamp5 = ('Screenrecorder-',)
+    timestamp4 = ('2018', '2019', '2020')
+    timestamp5 = ('Screenshot_',)
+    timestamp6 = ('Screenrecorder-',)
 
     # Skip directories and non-files
     if not os.path.isfile(file_path):
         continue
 
-    if not filename.startswith(timestamp1 + timestamp2 + timestamp3 + timestamp4 + timestamp5):
+    if not filename.startswith(timestamp1 + timestamp2 + timestamp3 + timestamp4 + timestamp5 + timestamp6):
         continue
 
     if filename.startswith(timestamp1):
@@ -36,12 +37,15 @@ for filename in os.listdir(source_dir):
     elif filename.startswith(timestamp3):
         pre = str(filename.split('.')[0]).split('-')
         timestamp = f"{pre[0]}{pre[1]}{pre[2]}"
-
+    
     elif filename.startswith(timestamp4):
+        timestamp = filename.split('_')[0]
+
+    elif filename.startswith(timestamp5):
         pre = str(filename.split('_')[1]).split('-')
         timestamp = f"{pre[0]}{pre[1]}{pre[2]}"
 
-    elif filename.startswith(timestamp5):
+    elif filename.startswith(timestamp6):
         pre = filename.split('-')
         timestamp = f"{pre[1]}{pre[2]}{pre[3]}"
 
