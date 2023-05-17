@@ -20,12 +20,13 @@ for filename in os.listdir(source_dir):
     timestamp4 = ('2018', '2019', '2020')
     timestamp5 = ('Screenshot_',)
     timestamp6 = ('Screenrecorder-',)
+    timestamp7 = ('IMG20',)
 
     # Skip directories and non-files
     if not os.path.isfile(file_path):
         continue
 
-    if not filename.startswith(timestamp1 + timestamp2 + timestamp3 + timestamp4 + timestamp5 + timestamp6):
+    if not filename.startswith(timestamp1 + timestamp2 + timestamp3 + timestamp4 + timestamp5 + timestamp6 + timestamp7):
         continue
 
     if filename.startswith(timestamp1):
@@ -48,6 +49,9 @@ for filename in os.listdir(source_dir):
     elif filename.startswith(timestamp6):
         pre = filename.split('-')
         timestamp = f"{pre[1]}{pre[2]}{pre[3]}"
+
+    elif filename.startswith(timestamp7):
+        timestamp = filename.split('.')[0][3:11]        
 
     date = datetime.strptime(timestamp, '%Y%m%d')
 
