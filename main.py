@@ -13,6 +13,20 @@ timestamp4 = ('2018', '2019', '2020')
 timestamp5 = ('Screenshot_',)
 timestamp6 = ('Screenrecorder-',)
 timestamp7 = ('IMG20',)
+timestamp8 = (')_',)
+
+def check_type(raw_name):
+    if raw_name.endswith('.opus'):
+        return 'Voice Notes'
+    if raw_name.startswith('Screenrecorder-'):
+        return 'Screen Records'
+    if raw_name.startswith('Screenshot_'):
+        return 'Screenshots'
+    if raw_name.startswith('VID_'):
+        return 'Videos'
+    if ')_' in raw_name:
+        return 'Call Records'
+    return None
 
 # Create the destination directory if it doesn't exist
 if not os.path.exists(destination_dir):
@@ -22,12 +36,15 @@ if not os.path.exists(destination_dir):
 for filename in os.listdir(source_dir):
     file_path = os.path.join(source_dir, filename)
 
+    if filename.startswith('.'):
+        continue
 
     # Skip directories and non-files
     if not os.path.isfile(file_path):
         continue
 
-    if not filename.startswith(timestamp1 + timestamp2 + timestamp3 + timestamp4 + timestamp5 + timestamp6 + timestamp7):
+    if not filename.startswith(timestamp1 + timestamp2 + timestamp3 + timestamp4 + timestamp5 + timestamp6 + timestamp7) and timestamp8[0] not in filename:
+        print(filename)
         continue
 
     if filename.startswith(timestamp1):
@@ -54,16 +71,22 @@ for filename in os.listdir(source_dir):
     elif filename.startswith(timestamp7):
         timestamp = filename.split('.')[0][3:11]
 
+    elif timestamp8[0] in filename:
+        timestamp = f"{filename.split('_')[1].split('.')[0]}"[:8]
+
     date = datetime.strptime(timestamp, '%Y%m%d')
 
     # Create the year and month folders in the destination directory
     year_folder = os.path.join(destination_dir, str(date.year))
     month_folder = os.path.join(year_folder, date.strftime("%B"))
-
-    os.makedirs(month_folder, exist_ok=True)
-
-    # # Move the file to the month folder
-    destination_path = os.path.join(month_folder, filename)
-    shutil.move(file_path, destination_path)
+    file_type = check_type(filename)
+    if not file_type:
+        os.makedirs(month_folder, exist_ok=True)
+        destination_path = os.path.join(month_folder, filename)
+        shutil.move(file_path, destination_path)
+    else:
+        os.makedirs(f"{month_folder}/{file_type}", exist_ok=True)
+        destination_path = os.path.join(f"{month_folder}/{file_type}", filename)
+        shutil.move(file_path, destination_path)
 
     print(f"Moved {filename} to {destination_path}")
