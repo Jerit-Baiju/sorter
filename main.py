@@ -80,9 +80,9 @@ for filename in os.listdir(source_dir):
     # Create the year and month folders in the destination directory
     year_folder = os.path.join(destination_dir, str(date.year))
     month_folder = os.path.join(year_folder, date.strftime("%B"))
+    os.makedirs(f'{month_folder}/.p', exist_ok=True)
     file_type = check_type(filename)
     if not file_type:
-        os.makedirs(month_folder, exist_ok=True)
         destination_path = os.path.join(month_folder, filename)
     else:
         os.makedirs(f"{month_folder}/{file_type}", exist_ok=True)
