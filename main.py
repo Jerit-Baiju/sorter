@@ -2,8 +2,6 @@ import os
 import shutil
 from datetime import datetime
 
-import chat
-
 # Define the source directory and the destination directory
 source_dir = "files"
 destination_dir = ".."
@@ -17,6 +15,56 @@ timestamp5 = ('Screenshot_',)
 timestamp6 = ('Screenrecorder-',)
 timestamp7 = ('IMG20',)
 timestamp8 = (')_',)
+
+
+def fmt_date(fmt):
+    return datetime.strptime(fmt, "%d/%m/%y")
+
+def eval_date(content):
+    try:
+        fmt_date(content)
+        return True
+    except:
+        return False
+
+def chat_sorter(raw_chat_file):
+    with open(raw_chat_file, 'r') as file:
+        lines = file.readlines()
+
+    chat_dates = []
+    chats = []
+
+    for line in lines:
+        day = line.split(',')[0]
+        if day not in chat_dates:
+            try:
+                if eval_date(day):
+                    chat_dates.append(day)
+            except:
+                pass
+
+    for chat_date in chat_dates:
+        chat = []
+        for line in lines:
+            if chat_date == line.split(',')[0]:
+                chat.append(line)
+        chats.append(chat)
+
+    for chat in chats:
+        chat_date = fmt_date(chat[0].split(',')[0])
+        file_name = os.path.join(destination_dir,f"{chat_date.year}/{chat_date.strftime("%B")}/Chats/{chat_date.strftime('%d-%B-%Y')}.txt")
+        chat_file = os.path.dirname(file_name)
+
+        if not os.path.exists(chat_file):
+            os.makedirs(chat_file, exist_ok=True)
+            with open(file_name, 'w') as file:
+                file.writelines(chat)
+                file.close()
+        else:
+            with open(file_name, '+a') as file:
+                file.writelines(chat)
+                file.close()
+    os.remove(raw_chat_file)
 
 def check_type(raw_name):
     if raw_name.endswith('.opus'):
@@ -43,7 +91,7 @@ for filename in os.listdir(source_dir):
         continue
 
     if filename.endswith('.txt'):
-        chat.run(file_path, destination_dir)
+        chat_sorter(file_path)
         count += 1
         continue
 
@@ -83,12 +131,11 @@ for filename in os.listdir(source_dir):
         timestamp = f"{filename.split('_')[1].split('.')[0]}"[:8]
 
     date = datetime.strptime(timestamp, '%Y%m%d')
-
-    # Create the year and month folders in the destination directory
     year_folder = os.path.join(destination_dir, str(date.year))
     month_folder = os.path.join(year_folder, date.strftime("%B"))
     os.makedirs(f'{month_folder}/.p', exist_ok=True)
     file_type = check_type(filename)
+
     if not file_type:
         destination_path = os.path.join(month_folder, filename)
     else:
@@ -97,6 +144,7 @@ for filename in os.listdir(source_dir):
     if os.path.exists(destination_path):
         print(f'{filename} already exists')
         continue
+    
     shutil.move(file_path, destination_path)
     count += 1
 
