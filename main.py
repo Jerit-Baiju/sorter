@@ -4,7 +4,8 @@ from datetime import datetime
 
 # Define the source directory and the destination directory
 source_dir = "files"
-destination_dir = "exports"
+destination_dir = ".."
+count = 0
 
 timestamp1 = ('IMG_', 'VID_', 'MVIMG_', 'SAVE_')
 timestamp2 = ('IMG-', 'AUD-', 'PTT-', 'VID-', 'null-')
@@ -83,10 +84,13 @@ for filename in os.listdir(source_dir):
     if not file_type:
         os.makedirs(month_folder, exist_ok=True)
         destination_path = os.path.join(month_folder, filename)
-        shutil.move(file_path, destination_path)
     else:
         os.makedirs(f"{month_folder}/{file_type}", exist_ok=True)
         destination_path = os.path.join(f"{month_folder}/{file_type}", filename)
-        shutil.move(file_path, destination_path)
+    if os.path.exists(destination_path):
+        print(f'{filename} already exists')
+        continue
+    shutil.move(file_path, destination_path)
+    count += 1
 
-    print(f"Moved {filename} to {destination_path}")
+print(f"Moved {count} files")
