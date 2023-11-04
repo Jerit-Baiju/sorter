@@ -6,6 +6,14 @@ from datetime import datetime
 source_dir = "files"
 destination_dir = "exports"
 
+timestamp1 = ('IMG_', 'VID_', 'MVIMG_', 'SAVE_')
+timestamp2 = ('IMG-', 'AUD-', 'PTT-', 'VID-', 'null-')
+timestamp3 = ('2020-', '2021-', '2022-','2023-')
+timestamp4 = ('2018', '2019', '2020')
+timestamp5 = ('Screenshot_',)
+timestamp6 = ('Screenrecorder-',)
+timestamp7 = ('IMG20',)
+
 # Create the destination directory if it doesn't exist
 if not os.path.exists(destination_dir):
     os.makedirs(destination_dir)
@@ -14,13 +22,6 @@ if not os.path.exists(destination_dir):
 for filename in os.listdir(source_dir):
     file_path = os.path.join(source_dir, filename)
 
-    timestamp1 = ('IMG_', 'VID_', 'MVIMG_', 'SAVE_')
-    timestamp2 = ('IMG-', 'AUD-', 'PTT-', 'VID-', 'null-')
-    timestamp3 = ('2020-', '2021-', '2022-','2023-')
-    timestamp4 = ('2018', '2019', '2020')
-    timestamp5 = ('Screenshot_',)
-    timestamp6 = ('Screenrecorder-',)
-    timestamp7 = ('IMG20',)
 
     # Skip directories and non-files
     if not os.path.isfile(file_path):
@@ -51,7 +52,7 @@ for filename in os.listdir(source_dir):
         timestamp = f"{pre[1]}{pre[2]}{pre[3]}"
 
     elif filename.startswith(timestamp7):
-        timestamp = filename.split('.')[0][3:11]        
+        timestamp = filename.split('.')[0][3:11]
 
     date = datetime.strptime(timestamp, '%Y%m%d')
 
