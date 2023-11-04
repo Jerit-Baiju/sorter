@@ -2,6 +2,8 @@ import os
 import shutil
 from datetime import datetime
 
+import chat
+
 # Define the source directory and the destination directory
 source_dir = "files"
 destination_dir = ".."
@@ -40,12 +42,17 @@ for filename in os.listdir(source_dir):
     if filename.startswith('.'):
         continue
 
+    if filename.endswith('.txt'):
+        chat.run(file_path, destination_dir)
+        count += 1
+        continue
+
     # Skip directories and non-files
     if not os.path.isfile(file_path):
         continue
 
     if not filename.startswith(timestamp1 + timestamp2 + timestamp3 + timestamp4 + timestamp5 + timestamp6 + timestamp7) and timestamp8[0] not in filename:
-        print('Failed to move {filename}')
+        print(f'Failed to move {filename}')
         continue
 
     if filename.startswith(timestamp1):

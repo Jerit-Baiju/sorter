@@ -1,3 +1,4 @@
 files
 exports
 .vscode/settings.json
+__pycache__/
