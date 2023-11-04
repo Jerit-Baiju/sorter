@@ -23,7 +23,7 @@ def check_type(raw_name):
         return 'Screen Records'
     if raw_name.startswith('Screenshot_'):
         return 'Screenshots'
-    if raw_name.startswith('VID_'):
+    if raw_name.startswith(('VID_', 'VID-')):
         return 'Videos'
     if ')_' in raw_name:
         return 'Call Records'
@@ -45,7 +45,7 @@ for filename in os.listdir(source_dir):
         continue
 
     if not filename.startswith(timestamp1 + timestamp2 + timestamp3 + timestamp4 + timestamp5 + timestamp6 + timestamp7) and timestamp8[0] not in filename:
-        print(filename)
+        print('Failed to move {filename}')
         continue
 
     if filename.startswith(timestamp1):
