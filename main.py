@@ -52,7 +52,7 @@ def chat_sorter(raw_chat_file):
 
     for chat in chats:
         chat_date = fmt_date(chat[0].split(',')[0])
-        file_name = os.path.join(destination_dir,f"{chat_date.year}/{chat_date.strftime("%B")}/Chats/{chat_date.strftime('%d-%B-%Y')}.txt")
+        file_name = os.path.join(destination_dir,f"{chat_date.year}/{chat_date.strftime('%B')}/Chats/{chat_date.strftime('%d-%B-%Y')}.txt")
         chat_file = os.path.dirname(file_name)
 
         if not os.path.exists(chat_file):
@@ -144,7 +144,7 @@ for filename in os.listdir(source_dir):
     if os.path.exists(destination_path):
         print(f'{filename} already exists')
         continue
-    
+
     shutil.move(file_path, destination_path)
     count += 1
 
