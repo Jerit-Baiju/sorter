@@ -38,7 +38,7 @@ for filename in os.listdir(source_dir):
     elif filename.startswith(timestamp3):
         pre = str(filename.split('.')[0]).split('-')
         timestamp = f"{pre[0]}{pre[1]}{pre[2]}"
-    
+
     elif filename.startswith(timestamp4):
         timestamp = filename.split('_')[0]
 
