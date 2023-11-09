@@ -75,7 +75,7 @@ def check_type(raw_name):
         return 'Screen Records'
     if raw_name.startswith('Screenshot_'):
         return 'Screenshots'
-    if raw_name.startswith(('VID_', 'VID-')+timestamp9):
+    if raw_name.startswith(('VID_', 'VID-') + timestamp9):
         return 'Videos'
     if ')_' in raw_name:
         return 'Call Records'
