@@ -65,6 +65,7 @@ def chat_sorter(raw_chat_file):
             with open(file_name, '+a') as file:
                 file.writelines(chat)
                 file.close()
+    print(f"Chat is backed up from the date {chat_dates[0]} to {chat_dates[-1]} .")
     os.remove(raw_chat_file)
 
 def check_type(raw_name):
