@@ -133,7 +133,6 @@ for filename in os.listdir(source_dir):
 
     elif filename.startswith(timestamp9):
         timestamp = f"{filename.split(' ')[2].replace('-', '')}"
-        print(timestamp)
 
     date = datetime.strptime(timestamp, '%Y%m%d')
     year_folder = os.path.join(destination_dir, str(date.year))
