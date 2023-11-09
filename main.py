@@ -9,7 +9,7 @@ count = 0
 
 timestamp1 = ('IMG_', 'VID_', 'MVIMG_', 'SAVE_')
 timestamp2 = ('IMG-', 'AUD-', 'PTT-', 'VID-', 'null-')
-timestamp3 = ('2020-', '2021-', '2022-','2023-')
+timestamp3 = ('2020-', '2021-', '2022-', '2023-')
 timestamp4 = ('2018', '2019', '2020')
 timestamp5 = ('Screenshot_',)
 timestamp6 = ('Screenrecorder-',)
@@ -21,12 +21,14 @@ timestamp9 = ('WhatsApp ',)
 def fmt_date(fmt):
     return datetime.strptime(fmt, "%d/%m/%y")
 
+
 def eval_date(content):
     try:
         fmt_date(content)
         return True
     except:
         return False
+
 
 def chat_sorter(raw_chat_file):
     with open(raw_chat_file, 'r') as file:
@@ -53,7 +55,8 @@ def chat_sorter(raw_chat_file):
 
     for chat in chats:
         chat_date = fmt_date(chat[0].split(',')[0])
-        file_name = os.path.join(destination_dir,f"{chat_date.year}/{chat_date.strftime('%B')}/Chats/{chat_date.strftime('%d-%B-%Y')}.txt")
+        file_name = os.path.join(
+            destination_dir, f"{chat_date.year}/{chat_date.strftime('%B')}/Chats/{chat_date.strftime('%d-%B-%Y')}.txt")
         chat_file = os.path.dirname(file_name)
 
         if not os.path.exists(chat_file):
@@ -68,6 +71,7 @@ def chat_sorter(raw_chat_file):
     print(f"Chat is backed up from the date {chat_dates[0]} to {chat_dates[-1]} .")
     os.remove(raw_chat_file)
 
+
 def check_type(raw_name):
     if raw_name.endswith('.opus'):
         return 'Voice Notes'
@@ -80,6 +84,7 @@ def check_type(raw_name):
     if ')_' in raw_name:
         return 'Call Records'
     return None
+
 
 # Create the destination directory if it doesn't exist
 if not os.path.exists(destination_dir):
