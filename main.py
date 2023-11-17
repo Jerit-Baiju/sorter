@@ -5,7 +5,9 @@ from datetime import datetime
 # Define the source directory and the destination directory
 source_dir = "files"
 destination_dir = ".."
-count = 0
+moved = 0
+existing = 0
+moved_months = []
 
 timestamp1 = ('IMG_', 'VID_', 'MVIMG_', 'SAVE_')
 timestamp2 = ('IMG-', 'AUD-', 'PTT-', 'VID-', 'null-')
@@ -99,7 +101,7 @@ for filename in os.listdir(source_dir):
 
     if filename.endswith('.txt'):
         chat_sorter(file_path)
-        count += 1
+        moved += 1
         continue
 
     # Skip directories and non-files
@@ -141,8 +143,11 @@ for filename in os.listdir(source_dir):
         timestamp = f"{filename.split(' ')[2].replace('-', '')}"
 
     date = datetime.strptime(timestamp, '%Y%m%d')
+    month_name = date.strftime('%B')
     year_folder = os.path.join(destination_dir, str(date.year))
     month_folder = os.path.join(year_folder, date.strftime("%B"))
+    if month_name not in moved_months:
+        moved_months.append(month_name)
     os.makedirs(f'{month_folder}/.p', exist_ok=True)
     file_type = check_type(filename)
 
@@ -152,10 +157,13 @@ for filename in os.listdir(source_dir):
         os.makedirs(f"{month_folder}/{file_type}", exist_ok=True)
         destination_path = os.path.join(f"{month_folder}/{file_type}", filename)
     if os.path.exists(destination_path):
-        print(f'{filename} already exists')
+        existing += 1
+        print(f'{filename} already exists in {destination_path}')
         continue
 
     shutil.move(file_path, destination_path)
-    count += 1
+    moved += 1
 
-print(f"Moved {count} files")
+print(f"Moved {moved} files")
+print(f"Moved to {','.join(moved_months)}")
+print(f"Existing {existing} files")
