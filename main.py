@@ -18,6 +18,7 @@ timestamp6 = ('Screenrecorder-',)
 timestamp7 = ('IMG20',)
 timestamp8 = (')_',)
 timestamp9 = ('WhatsApp ',)
+timestamp10 = ('Screenshot ',)
 
 
 def fmt_date(fmt):
@@ -108,7 +109,7 @@ for filename in os.listdir(source_dir):
     if not os.path.isfile(file_path):
         continue
 
-    if not filename.startswith(timestamp1 + timestamp2 + timestamp3 + timestamp4 + timestamp5 + timestamp6 + timestamp7 + timestamp9) and timestamp8[0] not in filename:
+    if not filename.startswith(timestamp1 + timestamp2 + timestamp3 + timestamp4 + timestamp5 + timestamp6 + timestamp7 + timestamp9 + timestamp10) and timestamp8[0] not in filename:
         print(f'Failed to move {filename}')
         continue
 
@@ -141,6 +142,9 @@ for filename in os.listdir(source_dir):
 
     elif filename.startswith(timestamp9):
         timestamp = f"{filename.split(' ')[2].replace('-', '')}"
+
+    elif filename.startswith(timestamp10):
+        timestamp = f"{filename.split(' ')[1].replace('-', '')}"
 
     date = datetime.strptime(timestamp, '%Y%m%d')
     month_name = date.strftime('%B')
