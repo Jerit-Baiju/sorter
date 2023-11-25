@@ -7,7 +7,9 @@ source_dir = "files"
 destination_dir = ".."
 moved = 0
 existing = 0
+remaining = 0
 moved_months = []
+moved_types = []
 
 timestamp1 = ('IMG_', 'VID_', 'MVIMG_', 'SAVE_')
 timestamp2 = ('IMG-', 'AUD-', 'PTT-', 'VID-', 'null-')
@@ -111,6 +113,7 @@ for filename in os.listdir(source_dir):
 
     if not filename.startswith(timestamp1 + timestamp2 + timestamp3 + timestamp4 + timestamp5 + timestamp6 + timestamp7 + timestamp9 + timestamp10) and timestamp8[0] not in filename:
         print(f'Failed to move {filename}')
+        remaining += 1
         continue
 
     if filename.startswith(timestamp1):
@@ -162,6 +165,8 @@ for filename in os.listdir(source_dir):
     if not file_type:
         destination_path = os.path.join(month_folder, filename)
     else:
+        if file_type not in moved_types:
+            moved_types.append(file_type)
         os.makedirs(f"{month_folder}/{file_type}", exist_ok=True)
         destination_path = os.path.join(f"{month_folder}/{file_type}", filename)
     if os.path.exists(destination_path):
@@ -172,6 +177,8 @@ for filename in os.listdir(source_dir):
     shutil.move(file_path, destination_path)
     moved += 1
 
-print(f"Moved {moved} files")
-print(f"Moved to {', '.join(moved_months)}")
-print(f"Existing {existing} files")
+print(f"Moved files - {moved}")
+print(f"Already existing files - {existing}")
+print(f"Remaining files - {remaining}")
+print(f"Types sorted - {', '.join(moved_types) if moved_types else 'None'}")
+print(f"Moved months - {', '.join(moved_months) if moved_months else 'None'}")
