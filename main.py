@@ -146,6 +146,10 @@ for filename in os.listdir(source_dir):
     elif filename.startswith(timestamp10):
         timestamp = f"{filename.split(' ')[1].replace('-', '')}"
 
+    else:
+        print('unknown error occurred')
+        break
+
     date = datetime.strptime(timestamp, '%Y%m%d')
     month_name = date.strftime('%B')
     year_folder = os.path.join(destination_dir, str(date.year))
