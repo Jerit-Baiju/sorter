@@ -80,9 +80,9 @@ def chat_sorter(raw_chat_file):
 def check_type(raw_name):
     if raw_name.endswith('.opus'):
         return 'Voice Notes'
-    if raw_name.startswith('Screenrecorder-'):
+    if raw_name.startswith('Screenrecorder'):
         return 'Screen Records'
-    if raw_name.startswith('Screenshot_'):
+    if raw_name.startswith('Screenshot'):
         return 'Screenshots'
     if raw_name.endswith(('.mp4',)):
         return 'Videos'
