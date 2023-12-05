@@ -1,6 +1,6 @@
 import os
 import shutil
-from datetime import datetime
+from datetime import datetime, UTC
 
 # Define the source directory and the destination directory
 source_dir = "files"
@@ -21,6 +21,7 @@ timestamp7 = ('IMG20',)
 timestamp8 = (')_',)
 timestamp9 = ('WhatsApp ',)
 timestamp10 = ('Screenshot ',)
+timestamp11 = ('VID',)
 
 
 def fmt_date(fmt):
@@ -98,8 +99,16 @@ if not os.path.exists(destination_dir):
 # Iterate over each file in the source directory
 for filename in os.listdir(source_dir):
     file_path = os.path.join(source_dir, filename)
-
+    try:
+        is_raw = bool(datetime.fromtimestamp(float(filename.split('.')[0][:-3]), UTC))
+        # datetime.datetime.fromtimestamp(timestamp, datetime.UTC)
+    except:
+        is_raw = False
     if filename.startswith('.'):
+        continue
+
+    # Skip directories and non-files
+    if not os.path.isfile(file_path):
         continue
 
     if filename.endswith('.txt'):
@@ -107,11 +116,7 @@ for filename in os.listdir(source_dir):
         moved += 1
         continue
 
-    # Skip directories and non-files
-    if not os.path.isfile(file_path):
-        continue
-
-    if not filename.startswith(timestamp1 + timestamp2 + timestamp3 + timestamp4 + timestamp5 + timestamp6 + timestamp7 + timestamp9 + timestamp10) and timestamp8[0] not in filename:
+    if (not filename.startswith(timestamp1 + timestamp2 + timestamp3 + timestamp4 + timestamp5 + timestamp6 + timestamp7 + timestamp9 + timestamp10 + timestamp11) and timestamp8[0] not in filename) and not is_raw:
         print(f'Failed to move {filename}')
         remaining += 1
         continue
@@ -148,6 +153,13 @@ for filename in os.listdir(source_dir):
 
     elif filename.startswith(timestamp10):
         timestamp = f"{filename.split(' ')[1].replace('-', '')}"
+
+    elif filename.startswith(timestamp11):
+        timestamp = f"{filename[3:11]}"
+        print(timestamp)
+
+    elif is_raw:
+        timestamp = datetime.fromtimestamp(float(filename.split('.')[0][:-3]), UTC).strftime('%Y%m%d')
 
     else:
         print('unknown error occurred')
