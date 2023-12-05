@@ -37,7 +37,7 @@ def eval_date(content):
 
 def chat_sorter(raw_chat_file):
     with open(raw_chat_file, 'r') as file:
-        lines = file.readlines()
+        lines = [line.replace('[', '').replace(']', ' -') for line in file.readlines()]
     chat_dates = []
     chats = []
     for line in lines:
