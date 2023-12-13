@@ -7,7 +7,6 @@ source_dir = "files"
 destination_dir = ".."
 moved = 0
 existing = 0
-remaining = 0
 moved_months = []
 moved_types = []
 timestamp1 = ('IMG_', 'VID_', 'MVIMG_', 'SAVE_')
@@ -83,6 +82,8 @@ def check_type(raw_name):
         return 'Videos'
     if ')_' in raw_name:
         return 'Call Records'
+    if 'other' in raw_name:
+        return 'Other'
     return None
 
 
@@ -91,6 +92,7 @@ if not os.path.exists(destination_dir):
     os.makedirs(destination_dir)
 # Iterate over each file in the source directory
 for filename in os.listdir(source_dir):
+    is_other = False
     file_path = os.path.join(source_dir, filename)
     try:
         is_raw = bool(datetime.fromtimestamp(float(filename.split('.')[0][:-3]), UTC))
@@ -106,10 +108,9 @@ for filename in os.listdir(source_dir):
         moved += 1
         continue
     if (not filename.startswith(timestamp1 + timestamp2 + timestamp3 + timestamp4 + timestamp5 + timestamp6 + timestamp7 + timestamp9 + timestamp10 + timestamp11) and timestamp8[0] not in filename) and not is_raw:
-        print(f'Failed to move {filename}')
-        remaining += 1
-        continue
-    if filename.startswith(timestamp1):
+        is_other = True
+        timestamp = str(datetime.today().strftime(r'%Y%m%d'))
+    elif filename.startswith(timestamp1):
         timestamp = filename.split('_')[1]
     elif filename.startswith(timestamp2):
         timestamp = filename.split('-')[1]
@@ -147,7 +148,7 @@ for filename in os.listdir(source_dir):
     if month_name not in moved_months:
         moved_months.append(month_name)
     os.makedirs(f'{month_folder}/.p', exist_ok=True)
-    file_type = check_type(filename)
+    file_type = check_type('other' if is_other else filename)
     if not file_type:
         destination_path = os.path.join(month_folder, filename)
     else:
@@ -164,6 +165,5 @@ for filename in os.listdir(source_dir):
 
 print(f"Moved files - {moved}")
 print(f"Already existing files - {existing}")
-print(f"Remaining files - {remaining}")
 print(f"Types sorted - {', '.join(moved_types) if moved_types else 'None'}")
 print(f"Moved months - {', '.join(moved_months) if moved_months else 'None'}")
