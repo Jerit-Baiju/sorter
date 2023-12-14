@@ -1,6 +1,6 @@
 import os
 import shutil
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 # Define the source directory and the destination directory
 source_dir = "files"
@@ -95,7 +95,7 @@ for filename in os.listdir(source_dir):
     is_other = False
     file_path = os.path.join(source_dir, filename)
     try:
-        is_raw = bool(datetime.fromtimestamp(float(filename.split('.')[0][:-3]), UTC))
+        is_raw = bool(datetime.fromtimestamp(float(filename.split('.')[0]), timezone.utc))
     except:
         is_raw = False
     if filename.startswith('.'):
@@ -137,7 +137,7 @@ for filename in os.listdir(source_dir):
         timestamp = f"{filename[3:11]}"
         print(timestamp)
     elif is_raw:
-        timestamp = datetime.fromtimestamp(float(filename.split('.')[0][:-3]), UTC).strftime('%Y%m%d')
+        timestamp = datetime.fromtimestamp(float(filename.split('.')[0]), timezone.utc).strftime('%Y%m%d')
     else:
         print('unknown error occurred')
         break
