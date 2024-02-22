@@ -9,17 +9,19 @@ moved = 0
 existing = 0
 moved_months = []
 moved_types = []
+
 timestamp1 = ('IMG_', 'VID_', 'MVIMG_', 'SAVE_')
-timestamp2 = ('IMG-', 'AUD-', 'PTT-', 'VID-', 'null-')
+timestamp2 = ('IMG-', 'AUD-', 'PTT-', 'VID-', 'null-', 'DOC')
 timestamp3 = ('2020-', '2021-', '2022-', '2023-')
 timestamp4 = ('2018', '2019', '2020')
 timestamp5 = ('Screenshot_',)
 timestamp6 = ('Screenrecorder-',)
 timestamp7 = ('IMG20',)
-timestamp8 = (')_',)
-timestamp9 = ('WhatsApp ',)
+timestamp8 = (')_', 'call_')
+timestamp9 = ('WhatsApp ', 'Screen Recording')
 timestamp10 = ('Screenshot ',)
 timestamp11 = ('VID',)
+# timestamp12 = ('Screen Recording',)
 
 
 def fmt_date(fmt):
@@ -33,6 +35,30 @@ def eval_date(content):
     except:
         return False
 
+
+def any_in(checks, target):
+    for check in checks:
+        if check in target:
+            return True
+    return False
+
+
+def check_type(raw_name):
+    if raw_name.endswith('.opus'):
+        return 'Voice Notes'
+    if 'record' in raw_name.lower():
+        return 'Screen Records'
+    if raw_name.startswith('Screenshot'):
+        return 'Screenshots'
+    if raw_name.endswith(('.mp4',)):
+        return 'Videos'
+    if any_in ([')_', 'call'], raw_name.lower()):
+        return 'Call Records'
+    if 'other' in raw_name:
+        return 'Other'
+    if raw_name.startswith('DOC') or raw_name.endswith(('.pdf', '.csv')):
+        return 'Documents'
+    return None
 
 def chat_sorter(raw_chat_file):
     with open(raw_chat_file, 'r') as file:
@@ -71,97 +97,89 @@ def chat_sorter(raw_chat_file):
     os.remove(raw_chat_file)
 
 
-def check_type(raw_name):
-    if raw_name.endswith('.opus'):
-        return 'Voice Notes'
-    if raw_name.startswith('Screenrecorder'):
-        return 'Screen Records'
-    if raw_name.startswith('Screenshot'):
-        return 'Screenshots'
-    if raw_name.endswith(('.mp4',)):
-        return 'Videos'
-    if ')_' in raw_name:
-        return 'Call Records'
-    if 'other' in raw_name:
-        return 'Other'
-    return None
-
-
 # Create the destination directory if it doesn't exist
 if not os.path.exists(destination_dir):
     os.makedirs(destination_dir)
 # Iterate over each file in the source directory
 for filename in os.listdir(source_dir):
-    is_other = False
-    file_path = os.path.join(source_dir, filename)
     try:
-        is_raw = bool(datetime.fromtimestamp(float(filename.split('.')[0]), timezone.utc))
-    except:
-        is_raw = False
-    if filename.startswith('.'):
-        continue
-    # Skip directories and non-files
-    if not os.path.isfile(file_path):
-        continue
-    if filename.endswith('.txt'):
-        chat_sorter(file_path)
+        is_other = False
+        file_path = os.path.join(source_dir, filename)
+        try:
+            is_raw = bool(datetime.fromtimestamp(float(filename.split('.')[0]), timezone.utc))
+        except:
+            is_raw = False
+        if filename.startswith('.'):
+            continue
+        # Skip directories and non-files
+        if not os.path.isfile(file_path):
+            continue
+        if filename.endswith('.txt'):
+            chat_sorter(file_path)
+            moved += 1
+            continue
+        if (not filename.startswith(timestamp1 + timestamp2 + timestamp3 + timestamp4 + timestamp5 + timestamp6 + timestamp7 + timestamp9 + timestamp10 + timestamp11 ) and not any_in(timestamp8, filename)) and not is_raw:
+            is_other = True
+            timestamp = str(datetime.today().strftime(r'%Y%m%d'))
+        elif filename.startswith(timestamp1):
+            timestamp = filename.split('_')[1]
+        elif filename.startswith(timestamp2):
+            timestamp = filename.split('-')[1]
+        elif filename.startswith(timestamp3):
+            pre = str(filename.split('.')[0]).split('-')
+            timestamp = f"{pre[0]}{pre[1]}{pre[2]}"
+        elif filename.startswith(timestamp4):
+            timestamp = filename.split('_')[0]
+        elif filename.startswith(timestamp5):
+            if '.com' in filename:
+                pre = str(filename.split('_')[1]).split('-')
+                timestamp = f"{pre[0]}{pre[1]}{pre[2]}"
+            else:
+                timestamp = str(filename.split('_')[1]).split('-', maxsplit=1)[0]
+        elif filename.startswith(timestamp6):
+            pre = filename.split('-')
+            timestamp = f"{pre[1]}{pre[2]}{pre[3]}"
+        elif filename.startswith(timestamp7):
+            timestamp = filename.split('.')[0][3:11]
+        elif any_in(timestamp8, filename):
+            timestamp = f"{filename.split('_')[1].split('.')[0]}"[:8]
+        elif filename.startswith(timestamp9):
+            timestamp = f"{filename.split(' ')[2].replace('-', '')}"
+        elif filename.startswith(timestamp10):
+            timestamp = f"{filename.split(' ')[1].replace('-', '')}"
+        elif filename.startswith(timestamp11):
+            timestamp = f"{filename[3:11]}"
+            print(timestamp)
+        elif is_raw:
+            timestamp = datetime.fromtimestamp(float(filename.split('.')[0]), timezone.utc).strftime('%Y%m%d')
+        else:
+            print('unknown error occurred')
+            break
+        date = datetime.strptime(timestamp, '%Y%m%d')
+        month_name = date.strftime('%B')
+        year_folder = os.path.join(destination_dir, str(date.year))
+        month_folder = os.path.join(year_folder, date.strftime("%B"))
+        if month_name not in moved_months:
+            moved_months.append(month_name)
+        os.makedirs(f'{month_folder}/.p', exist_ok=True)
+        file_type = check_type('other' if is_other else filename)
+        if not file_type:
+            destination_path = os.path.join(month_folder, filename)
+        else:
+            if file_type not in moved_types:
+                moved_types.append(file_type)
+            os.makedirs(f"{month_folder}/{file_type}", exist_ok=True)
+            destination_path = os.path.join(f"{month_folder}/{file_type}", filename)
+        if os.path.exists(destination_path):
+            existing += 1
+            print(f'{filename} already exists in {destination_path}')
+            continue
+        shutil.move(file_path, destination_path)
         moved += 1
-        continue
-    if (not filename.startswith(timestamp1 + timestamp2 + timestamp3 + timestamp4 + timestamp5 + timestamp6 + timestamp7 + timestamp9 + timestamp10 + timestamp11) and timestamp8[0] not in filename) and not is_raw:
-        is_other = True
-        timestamp = str(datetime.today().strftime(r'%Y%m%d'))
-    elif filename.startswith(timestamp1):
-        timestamp = filename.split('_')[1]
-    elif filename.startswith(timestamp2):
-        timestamp = filename.split('-')[1]
-    elif filename.startswith(timestamp3):
-        pre = str(filename.split('.')[0]).split('-')
-        timestamp = f"{pre[0]}{pre[1]}{pre[2]}"
-    elif filename.startswith(timestamp4):
-        timestamp = filename.split('_')[0]
-    elif filename.startswith(timestamp5):
-        pre = str(filename.split('_')[1]).split('-')
-        timestamp = f"{pre[0]}{pre[1]}{pre[2]}"
-    elif filename.startswith(timestamp6):
-        pre = filename.split('-')
-        timestamp = f"{pre[1]}{pre[2]}{pre[3]}"
-    elif filename.startswith(timestamp7):
-        timestamp = filename.split('.')[0][3:11]
-    elif timestamp8[0] in filename:
-        timestamp = f"{filename.split('_')[1].split('.')[0]}"[:8]
-    elif filename.startswith(timestamp9):
-        timestamp = f"{filename.split(' ')[2].replace('-', '')}"
-    elif filename.startswith(timestamp10):
-        timestamp = f"{filename.split(' ')[1].replace('-', '')}"
-    elif filename.startswith(timestamp11):
-        timestamp = f"{filename[3:11]}"
-        print(timestamp)
-    elif is_raw:
-        timestamp = datetime.fromtimestamp(float(filename.split('.')[0]), timezone.utc).strftime('%Y%m%d')
-    else:
-        print('unknown error occurred')
-        break
-    date = datetime.strptime(timestamp, '%Y%m%d')
-    month_name = date.strftime('%B')
-    year_folder = os.path.join(destination_dir, str(date.year))
-    month_folder = os.path.join(year_folder, date.strftime("%B"))
-    if month_name not in moved_months:
-        moved_months.append(month_name)
-    os.makedirs(f'{month_folder}/.p', exist_ok=True)
-    file_type = check_type('other' if is_other else filename)
-    if not file_type:
-        destination_path = os.path.join(month_folder, filename)
-    else:
-        if file_type not in moved_types:
-            moved_types.append(file_type)
-        os.makedirs(f"{month_folder}/{file_type}", exist_ok=True)
-        destination_path = os.path.join(f"{month_folder}/{file_type}", filename)
-    if os.path.exists(destination_path):
-        existing += 1
-        print(f'{filename} already exists in {destination_path}')
-        continue
-    shutil.move(file_path, destination_path)
-    moved += 1
+    except IndexError as e:
+        print(', '.join(e.args),f' - {filename}')
+    except:
+        print(f"Error at file - {filename}")
 
 print(f"Moved files - {moved}")
 print(f"Already existing files - {existing}")
