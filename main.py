@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 # Define the source directory and the destination directory
 source_dir = "files"
 destination_dir = ".."
+
 moved = 0
 existing = 0
 moved_months = []
@@ -21,7 +22,6 @@ timestamp8 = (')_', 'call_')
 timestamp9 = ('WhatsApp ', 'Screen Recording')
 timestamp10 = ('Screenshot ',)
 timestamp11 = ('VID',)
-# timestamp12 = ('Screen Recording',)
 
 
 def fmt_date(fmt):
@@ -43,7 +43,7 @@ def any_in(checks, target):
     return False
 
 
-def check_type(raw_name):
+def check_type(raw_name, other=False):
     if raw_name.endswith('.opus'):
         return 'Voice Notes'
     if 'record' in raw_name.lower():
@@ -54,11 +54,9 @@ def check_type(raw_name):
         return 'Videos'
     if any_in ([')_', 'call'], raw_name.lower()):
         return 'Call Records'
-    if 'other' in raw_name:
-        return 'Other'
     if raw_name.startswith('DOC') or raw_name.endswith(('.pdf', '.csv')):
         return 'Documents'
-    return None
+    return 'Other' if other else None
 
 def chat_sorter(raw_chat_file):
     with open(raw_chat_file, 'r') as file:
@@ -131,7 +129,7 @@ for filename in os.listdir(source_dir):
         elif filename.startswith(timestamp4):
             timestamp = filename.split('_')[0]
         elif filename.startswith(timestamp5):
-            if '.com' in filename:
+            if 'com.' in filename:
                 pre = str(filename.split('_')[1]).split('-')
                 timestamp = f"{pre[0]}{pre[1]}{pre[2]}"
             else:
@@ -155,14 +153,18 @@ for filename in os.listdir(source_dir):
         else:
             print('unknown error occurred')
             break
-        date = datetime.strptime(timestamp, '%Y%m%d')
+        try:
+            date = datetime.strptime(timestamp, '%Y%m%d')
+        except:
+            timestamp = str(datetime.today().strftime(r'%Y%m%d'))
+            date = datetime.strptime(timestamp, '%Y%m%d')
         month_name = date.strftime('%B')
         year_folder = os.path.join(destination_dir, str(date.year))
         month_folder = os.path.join(year_folder, date.strftime("%B"))
         if month_name not in moved_months:
             moved_months.append(month_name)
         os.makedirs(f'{month_folder}/.p', exist_ok=True)
-        file_type = check_type('other' if is_other else filename)
+        file_type = check_type(filename, is_other)
         if not file_type:
             destination_path = os.path.join(month_folder, filename)
         else:
@@ -178,7 +180,7 @@ for filename in os.listdir(source_dir):
         moved += 1
     except IndexError as e:
         print(', '.join(e.args),f' - {filename}')
-    except:
+    except :
         print(f"Error at file - {filename}")
 
 print(f"Moved files - {moved}")
