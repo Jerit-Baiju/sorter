@@ -11,10 +11,10 @@ existing = 0
 moved_months = []
 moved_types = []
 
-timestamp1 = ('IMG_', 'VID_', 'MVIMG_', 'SAVE_')
+timestamp1 = ('IMG_', 'VID_', 'MVIMG_', 'SAVE_', 'MVIMG_')
 timestamp2 = ('IMG-', 'AUD-', 'PTT-', 'VID-', 'null-', 'DOC')
-timestamp3 = ('2020-', '2021-', '2022-', '2023-')
-timestamp4 = ('2018', '2019', '2020')
+timestamp3 = ('2017-', '2018-','2019-','2020-', '2021-', '2022-', '2023-', '2024-')
+timestamp4 = ('2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024')
 timestamp5 = ('Screenshot_',)
 timestamp6 = ('Screenrecorder-',)
 timestamp7 = ('IMG20',)
@@ -50,13 +50,13 @@ def check_type(raw_name, other=False):
         return 'Screen Records'
     if raw_name.startswith('Screenshot'):
         return 'Screenshots'
-    if raw_name.endswith(('.mp4',)):
+    if raw_name.endswith(('.mp4', '.MP4')):
         return 'Videos'
     if any_in ([')_', 'call'], raw_name.lower()):
         return 'Call Records'
     if raw_name.startswith('DOC') or raw_name.endswith(('.pdf', '.csv')):
         return 'Documents'
-    return 'Other' if other else None
+    return 'Other' if other else 'main'
 
 def chat_sorter(raw_chat_file):
     with open(raw_chat_file, 'r') as file:
@@ -161,22 +161,24 @@ for filename in os.listdir(source_dir):
         month_name = date.strftime('%B')
         year_folder = os.path.join(destination_dir, str(date.year))
         month_folder = os.path.join(year_folder, date.strftime("%B"))
-        if month_name not in moved_months:
-            moved_months.append(month_name)
         os.makedirs(f'{month_folder}/.p', exist_ok=True)
         file_type = check_type(filename, is_other)
-        if not file_type:
+        if file_type == 'main':
             destination_path = os.path.join(month_folder, filename)
         else:
-            if file_type not in moved_types:
-                moved_types.append(file_type)
             os.makedirs(f"{month_folder}/{file_type}", exist_ok=True)
             destination_path = os.path.join(f"{month_folder}/{file_type}", filename)
         if os.path.exists(destination_path):
             existing += 1
             print(f'{filename} already exists in {destination_path}')
             continue
+        month_log = f'{date.year}-{month_name}'
+        if month_log not in moved_months:
+            moved_months.append(month_log)
+        if file_type not in moved_types:
+            moved_types.append(file_type)
         shutil.move(file_path, destination_path)
+        # print(f'{filename} moved to {destination_path} from {file_path}')
         moved += 1
     except IndexError as e:
         print(', '.join(e.args),f' - {filename}')
