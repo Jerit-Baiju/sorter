@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 # Define the source directory and the destination directory
 SOURCE_DIR = "files"
-DESTINATION_DIR = ".."
+DESTINATION_DIR = "exports"
 
 MOVED = 0
 EXISTING = 0
